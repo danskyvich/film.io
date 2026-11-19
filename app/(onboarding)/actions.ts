@@ -6,7 +6,6 @@ import { getUser } from "../lib/auth/get-user";
 import { redirect } from "next/navigation";
 import { OnboardingMovie } from "@/types";
 import { addPosterUrlToBatch } from "../features/dashboard/queries";
-import { shuffleFilms } from "../lib/helpers/shufflePool";
 
 export const saveGenres = async (genres: Set<string | number>): Promise<{success: false, error: string} | {success: true, error: null}> => {
     if (!(genres instanceof Set)) return { success: false, error: "Invalid input"};
