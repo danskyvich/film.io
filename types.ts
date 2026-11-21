@@ -88,3 +88,8 @@ export const FEATURED = [
     poster_path: string,
     genre_id: number,
    }
+
+export type RecommendedFilm = {
+    film_id: number,
+    score: number,
+}

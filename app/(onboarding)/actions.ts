@@ -7,6 +7,9 @@ import { redirect } from "next/navigation";
 import { OnboardingMovie } from "@/types";
 import { addPosterUrlToBatch } from "../features/dashboard/queries";
 
+const RECOMMENDER_URL = process.env.RECOMMENDER_URL;
+const RECOMMENDER_API_KEY = process.env.RECOMMENDER_API_KEY;
+
 export const saveGenres = async (genres: Set<string | number>): Promise<{success: false, error: string} | {success: true, error: null}> => {
     if (!(genres instanceof Set)) return { success: false, error: "Invalid input"};
 
@@ -68,6 +71,11 @@ export const saveFilms = async (films: Set<string | number>) => {
         redirect("/login");
     };
 
+    if (!RECOMMENDER_API_KEY) {
+        console.log("RECOMMENDER_API_KEY not set.");
+        return;
+    }
+
     const coercedSet = Array.from(films, (film) => Number(film));
     const filteredSet = coercedSet.filter((validIds) => validIds > 0 && Number.isInteger(validIds));
     const dedupedArray = Array.from(new Set<number>(filteredSet));
@@ -108,7 +116,27 @@ export const saveFilms = async (films: Set<string | number>) => {
                 WHERE user_id = ${user_id} AND onboarded_at IS NULL
             `,
         ]);
-        revalidatePath("/", "layout");
+
+        // PUT (save_preferences)
+        try {
+            const apiResponse = await fetch(`${RECOMMENDER_URL}/v1/users/${user_id}/preferences`, 
+            {
+                method: "PUT",
+                headers: {
+                    "X-API-Key": RECOMMENDER_API_KEY,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ film_ids: dedupedArray}),
+                signal: AbortSignal.timeout(10000)
+             })
+            if (!apiResponse.ok) {
+                console.error(`${apiResponse.status}`)
+            }
+        } catch (err) {
+            console.error("recommender PUT failed", err)
+        }
+    
+        console.log("Films saved.")
         return { success: true, error: null };
     } catch (err) {
         console.error(err);

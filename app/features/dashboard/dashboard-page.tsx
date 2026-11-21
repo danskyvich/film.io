@@ -14,15 +14,17 @@ import Thumbnail from "./components/thumbnail";
 import ThumbnailSkeleton from "./components/skeleton/thumbnail-skeleton";
 import { FEATURED } from "@/types";
 import Link from "next/link";
+import Recommendations from "./components/logged-in/recommendations";
 
 interface DashboardProps {
   user: User | undefined,
   trending: MovieItem[],
   topRated: MovieItem[],
   perGenre: Record<string, AggregatedGenres[]>,
+  recommendations?: MovieItem[],
 }
 
-export default function DashboardPage({user, trending, topRated, perGenre}: DashboardProps) {
+export default function DashboardPage({ user, recommendations, trending, topRated, perGenre}: DashboardProps) {
 
   useEffect(() => {
     document.title = "Film.io - Home";
@@ -33,6 +35,8 @@ export default function DashboardPage({user, trending, topRated, perGenre}: Dash
 
   // Defaults to the first trending movie until the user clicks one
   const selectedItem = pickedItem ?? trending[0] ?? null;
+
+  console.log(recommendations);
 
   return (
     <main className="flex flex-col z-0 w-full h-full gap-5 overflow-y-auto overflow-x-hidden">
@@ -72,6 +76,10 @@ export default function DashboardPage({user, trending, topRated, perGenre}: Dash
         </Carousel>
       </section>
 
+      {/* Recommendations */}
+      {recommendations && <Recommendations movies={recommendations!} />}
+
+      {/* Toprated */}
       <section className="flex flex-col w-full h-fit mx-3">
         <ContentRow title="Top rated" movies={topRated} />
       </section>
@@ -90,8 +98,15 @@ export default function DashboardPage({user, trending, topRated, perGenre}: Dash
               >
                 <CarouselContent>
                   {perGenre[genre].map((movies) => (
-                    <CarouselItem className="basis-1/3 md:basis-1/5 lg:basis-1/6" key={movies.id} >
-                      <Link href={`/dashboard/${movies.id}`} draggable={false} className="block relative aspect-2/3 overflow-hidden rounded-lg w-full h-full">
+                    <CarouselItem
+                      className="basis-1/3 md:basis-1/5 lg:basis-1/6"
+                      key={movies.id}
+                    >
+                      <Link
+                        href={`/dashboard/${movies.id}`}
+                        draggable={false}
+                        className="block relative aspect-2/3 overflow-hidden rounded-lg w-full h-full"
+                      >
                         <Image
                           src={movies.poster_path!}
                           alt={movies.title}
@@ -100,7 +115,9 @@ export default function DashboardPage({user, trending, topRated, perGenre}: Dash
                           className="object-cover"
                         />
                         <div className="flex w-full h-full bg-linear-180 from-transparent to-black/90 absolute z-50 inset-0 pointer-events-none">
-                          <p className="text-sm font-sans self-end p-2">{movies.title}</p>
+                          <p className="text-sm font-sans self-end p-2">
+                            {movies.title}
+                          </p>
                         </div>
                       </Link>
                     </CarouselItem>

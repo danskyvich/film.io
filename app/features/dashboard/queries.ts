@@ -1,11 +1,13 @@
 import { getUser } from "@/app/lib/auth/get-user";
 import { sql } from "@/app/lib/db"
-import { AggregatedGenres, MovieFull, MovieItem, TMDBImageSizes } from "@/types";
-import { cacheLife, cacheTag } from "next/cache";
+import { AggregatedGenres, MovieFull, MovieItem, MovieSummary, RecommendedFilm, TMDBImageSizes } from "@/types";
+import { cacheLife, cacheTag, revalidatePath } from "next/cache";
 import { cache } from "react";
 import "server-only";
+import { isDataView } from "util/types";
 
-// not exposed to public
+const RECOMMENDER_URL = process.env.RECOMMENDER_URL
+const RECOMMENDER_API_KEY = process.env.RECOMMENDER_API_KEY
 
 //IMAGE helper functions
 const tmdbImageUrl = ({path, size}: {path: string | null, size: TMDBImageSizes }): string | null => {
@@ -213,4 +215,90 @@ export const readRatedWatchlistedMovieIds = async (): Promise<number[]> => {
         return [];
     }
 }
+
+// GET
+export const fetchRecommendations = async () => {
+    const user = (await getUser())?.user;
+    const user_id = user?.sub;
+
+    if (!user_id) return [];
+
+    let ids: number[] = [];
+
+    try {
+        if (!RECOMMENDER_API_KEY) {
+            console.error("RECOMMENDER_API_KEY not set.");
+        } else {
+            const response = await fetch(
+                `${RECOMMENDER_URL}/v1/users/${user_id}/recommendations?limit=20`,
+                {
+                    method: "GET",
+                    headers: {
+                        "X-API-Key": RECOMMENDER_API_KEY,
+                        "Accept": "application/json",
+                    },
+                    cache: "no-store",
+                    signal: AbortSignal.timeout(4000),
+                }
+            );
+
+            if (!response.ok) {
+                console.error(`Recommender: ${response.status}: ${response.statusText}`);
+            } else {
+                const data = await response.json();
+                ids = (data.recommendations ?? []).map((row: RecommendedFilm) => row.film_id);
+            }
+        }
+    } catch (err) {
+        console.error("Recommender request failed", err);
+    }
+
+    if (ids.length === 0) return [];
+
+    try {
+        let movies: MovieItem[] = [];
+
+        if (ids.length > 0) {
+            const rows = (await sql `
+                SELECT
+                    m.id,
+                    m.title,
+                    m.poster_path,
+                    m.release_date::text,
+                    m.vote_average,
+                    m.vote_count,
+                    m.popularity,
+                    m.overview,
+                    m.language as original_language,
+                    COALESCE(
+                        ( 
+                        SELECT array_agg(mg.genre_id)
+                        FROM movie_genre_join mg
+                        WHERE mg.movie_id = m.id 
+                        ),
+                        '{}'::int[]
+                    ) as genre_ids,
+                    COALESCE(
+                        (
+                        SELECT array_agg(pc.company_id)
+                        FROM movie_production_companies pc
+                        WHERE pc.movie_id = m.id
+                        ),
+                        '{}'::int[]
+                    ) as production_companies
+                FROM movies m
+                WHERE id = ANY(${ids}::int[])
+                    AND m.poster_path IS NOT NULL
+                    AND adult = false
+            `) as MovieItem[];
+
+            const position = new Map(ids.map((id, index) => [id, index]));
+            movies = [...rows].sort((a, b) => position.get(a.id)! - position.get(b.id)!);
+        }
+        return addPosterUrlToBatch({ movies, size: "w500" });
+    } catch (err) {
+        console.error("fetchRecommendations failed", err);
+        return [];
+    }
+};
 
