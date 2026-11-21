@@ -78,7 +78,7 @@ Never commit `.env.local`.
 
 ## Database
 
-Main tables used by the features above: `users` (with `onboarded_at` and `onboarded_step`), `movies`, `genres`, `movie_genre_join`, `onboarding_genres`, `onboarding_movies`, and the production company tables. _(Add a schema diagram or the migration instructions if you have them.)_
+Main tables used by the features above: `users` (with `onboarded_at` and `onboarded_step`), `movies`, `genres`, `movie_genre_join`, `onboarding_genres`, `onboarding_movies`.
 
 ## Related projects
 
@@ -86,10 +86,9 @@ Main tables used by the features above: `users` (with `onboarded_at` and `onboar
 
 ## Roadmap
 
-- Stream the recommendations row with `Suspense` so a cold recommender never delays the dashboard
-- Send watch and rating events to the recommender for collaborative filtering
-- Retry failed preference syncs
-
-## License
-
-_Add a license._
+[] Stream the recommendations row with `Suspense` so a cold recommender never delays the dashboard
+[] Send watch and rating events to the recommender for collaborative filtering
+[] Retry failed preference syncs
+[] Search feature
+[] Enrich movie page details with new information pulled from TMDB
+[] Language support
