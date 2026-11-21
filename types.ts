@@ -89,7 +89,7 @@ export const FEATURED = [
     genre_id: number,
    }
 
-export type RecommendedFilm = {
+   export type RecommendedFilm = {
     film_id: number,
-    score: number,
-}
+    score: number
+   }

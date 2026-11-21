@@ -34,5 +34,5 @@ export default async function DashboardFetch() {
       filterDashboardHelper(trending);
       filterDashboardHelper(topRated);
     
-      return <DashboardPage user={session?.user} trending={trending} recommendations={recommendations} topRated={topRated} perGenre={perGenreVisible}/>
+      return <DashboardPage user={session?.user} recommendations={recommendations!} trending={trending} topRated={topRated} perGenre={perGenreVisible}/>
 }

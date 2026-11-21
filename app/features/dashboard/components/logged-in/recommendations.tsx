@@ -11,29 +11,26 @@ interface RecommendationProps {
   movies: MovieItem[],
 }
 
-export default function Recommendations({movies}: RecommendationProps) {
+interface RecommendationsProps {
+  movies: MovieItem[],
+}
+
+export default function Recommendations({ movies }: RecommendationsProps) {
   return (
-    <section className="mx-3">
-      <h2 className="text-2xl font-semibold">Recommended for you</h2>
-      <h3 className="mb-3 text-sm text-white/75 font-sans font-light">
-        Movies you can like.
-      </h3>
-      <Carousel opts={{ align: "start", dragFree: true }}>
-        <CarouselContent>
-          {movies.map((movie) => (
-            <CarouselItem
-              key={movie.id}
-              className="basis-1/3 md:basis-1/5 lg:basis-1/6"
-            >
-              <Link
-                className="group relative block aspect-2/3 cursor-pointer overflow-hidden rounded-lg"
-                href={`/dashboard/${movie.id}`}
-                scroll={false}
-                draggable={false}
-              >
+    <div className="flex flex-col w-full h-fit px-5">
+      <Carousel
+        orientation="horizontal"
+        opts={{
+          align: "start",
+        }}
+      >
+        <CarouselContent className="flex -ml-5 w-full">
+          {films.map((item) => (
+            <CarouselItem key={item.id} className="pl-5 basis-1/4 md:basis-1/5 lg:basis-1/7">
+              <div className="relative h-65 cursor-pointer overflow-hidden border border-white/35">
                 <Image
-                  src={movie.poster_path!}
-                  alt={movie.title}
+                  src={movies.poster_path ?? ""}
+                  alt={movies.title}
                   fill
                   sizes="(min-width: 1024px) 16vw, (min-width: 768px) 20vw, 33vw"
                   className="object-cover"
