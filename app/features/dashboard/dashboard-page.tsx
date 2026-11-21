@@ -14,8 +14,6 @@ import Thumbnail from "./components/thumbnail";
 import ThumbnailSkeleton from "./components/skeleton/thumbnail-skeleton";
 import { FEATURED } from "@/types";
 import Link from "next/link";
-import Recommendations from "./components/logged-in/recommendations";
-
 interface DashboardProps {
   user: User | undefined,
   trending: MovieItem[],
@@ -74,8 +72,14 @@ export default function DashboardPage({user, trending, recommendations, topRated
         </Carousel>
       </section>
 
-      {/* Recommendations */}
-      {recommendations && <Recommendations movies={recommendations!} />}
+      {/* Toprated */}
+      <section className="flex flex-col w-full h-fit mx-3">
+        <ContentRow
+          title="Recommended for you"
+          subtitle="Movies catered to your taste"
+          movies={recommendations!}
+        />
+      </section>
 
       {/* Toprated */}
       <section className="flex flex-col w-full h-fit mx-3">
@@ -95,50 +99,35 @@ export default function DashboardPage({user, trending, recommendations, topRated
       </section>
 
       <section className="flex flex-col w-full h-fit mx-3 gap-4">
-        {FEATURED.filter((genre) => genre)
+        {FEATURED.filter(Boolean)
           .slice(0, 5)
-          .map((genre, id) => (
-            <div className="space-y-3" key={id}>
+          .map((genre) => (
+            <div className="space-y-3" key={genre}>
               <h2 className="text-2xl font-semibold">{genre}</h2>
-              <Carousel
-                orientation="horizontal"
-                opts={{
-                  align: "start",
-                }}
-              >
+              <Carousel orientation="horizontal" opts={{ align: "start" }}>
                 <CarouselContent>
-                  {perGenre[genre].map((movies) => (
+                  {(perGenre[genre] ?? []).map((movie) => (
                     <CarouselItem
+                      key={movie.id}
                       className="basis-1/3 md:basis-1/5 lg:basis-1/6"
-                      key={movies.id}
                     >
                       <Link
-                        href={`/dashboard/${movies.id}`}
+                        href={`/dashboard/${movie.id}`}
                         draggable={false}
-                        className="block relative aspect-2/3 overflow-hidden rounded-lg w-full h-full"
+                        className="block relative isolate aspect-2/3 overflow-hidden rounded-lg w-full h-full"
                       >
-                    <CarouselItem
-                      className="basis-1/3 md:basis-1/5 lg:basis-1/6"
-                      key={movies.id}
-                    >
-                      <Link
-                        href={`/dashboard/${movies.id}`}
-                        draggable={false}
-                        className="block relative aspect-2/3 overflow-hidden rounded-lg w-full h-full"
-                      >
-                        <Image
-                          src={movies.poster_path!}
-                          alt={movies.title}
-                          fill
-                          sizes="w-full"
-                          className="object-cover"
-                        />
-                        <div className="flex w-full h-full bg-linear-180 from-transparent to-black/90 absolute z-50 inset-0 pointer-events-none">
+                        {movie.poster_path && (
+                          <Image
+                            src={movie.poster_path}
+                            alt={movie.title}
+                            fill
+                            sizes="(min-width: 1024px) 16vw, (min-width: 768px) 20vw, 33vw"
+                            className="object-cover"
+                          />
+                        )}
+                        <div className="flex w-full h-full bg-linear-180 from-transparent to-black/90 absolute inset-0 pointer-events-none">
                           <p className="text-sm font-sans self-end p-2">
-                            {movies.title}
-                          </p>
-                          <p className="text-sm font-sans self-end p-2">
-                            {movies.title}
+                            {movie.title}
                           </p>
                         </div>
                       </Link>
@@ -150,5 +139,5 @@ export default function DashboardPage({user, trending, recommendations, topRated
           ))}
       </section>
     </main>
-  )
+  );
 }
