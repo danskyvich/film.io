@@ -20,9 +20,10 @@ interface DashboardProps {
   trending: MovieItem[],
   topRated: MovieItem[],
   perGenre: Record<string, AggregatedGenres[]>,
+  recommendations?: MovieItem[]
 }
 
-export default function DashboardPage({user, trending, topRated, perGenre}: DashboardProps) {
+export default function DashboardPage({user, trending, recommendations, topRated, perGenre}: DashboardProps) {
 
   useEffect(() => {
     document.title = "Film.io - Home";
@@ -73,7 +74,19 @@ export default function DashboardPage({user, trending, topRated, perGenre}: Dash
       </section>
 
       <section className="flex flex-col w-full h-fit mx-3">
-        <ContentRow title="Top rated" movies={topRated} />
+        <ContentRow
+          title="Top rated"
+          subtitle="Movies that users rated the most"
+          movies={topRated}
+        />
+      </section>
+
+      <section className="flex flex-col w-full h-fit mx-3">
+        <ContentRow
+          title="Recommended for you"
+          subtitle="Movies closer to your preferences"
+          movies={recommendations!}
+        />
       </section>
 
       <section className="flex flex-col w-full h-fit mx-3 gap-4">
@@ -90,8 +103,15 @@ export default function DashboardPage({user, trending, topRated, perGenre}: Dash
               >
                 <CarouselContent>
                   {perGenre[genre].map((movies) => (
-                    <CarouselItem className="basis-1/3 md:basis-1/5 lg:basis-1/6" key={movies.id} >
-                      <Link href={`/dashboard/${movies.id}`} draggable={false} className="block relative aspect-2/3 overflow-hidden rounded-lg w-full h-full">
+                    <CarouselItem
+                      className="basis-1/3 md:basis-1/5 lg:basis-1/6"
+                      key={movies.id}
+                    >
+                      <Link
+                        href={`/dashboard/${movies.id}`}
+                        draggable={false}
+                        className="block relative aspect-2/3 overflow-hidden rounded-lg w-full h-full"
+                      >
                         <Image
                           src={movies.poster_path!}
                           alt={movies.title}
@@ -100,7 +120,9 @@ export default function DashboardPage({user, trending, topRated, perGenre}: Dash
                           className="object-cover"
                         />
                         <div className="flex w-full h-full bg-linear-180 from-transparent to-black/90 absolute z-50 inset-0 pointer-events-none">
-                          <p className="text-sm font-sans self-end p-2">{movies.title}</p>
+                          <p className="text-sm font-sans self-end p-2">
+                            {movies.title}
+                          </p>
                         </div>
                       </Link>
                     </CarouselItem>

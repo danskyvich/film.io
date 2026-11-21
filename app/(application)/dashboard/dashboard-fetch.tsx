@@ -1,6 +1,7 @@
 import DashboardPage from "@/app/features/dashboard/dashboard-page";
 import {
   fetchMoviesPerGenre,
+  fetchRecommendations,
   fetchTopRatedMovies,
   fetchTrendingMovies,
   readRatedWatchlistedMovieIds,
@@ -10,10 +11,11 @@ import { connection } from "next/server";
 
 export default async function DashboardFetch() {
     await connection();
-    const [trending, topRated, perGenre, session, ratedWatchlistMovieIds] =
+    const [trending, topRated, recommendations, perGenre, session, ratedWatchlistMovieIds] =
       await Promise.all([
         fetchTrendingMovies(),
         fetchTopRatedMovies(),
+        fetchRecommendations(),
         fetchMoviesPerGenre(),
         auth0.getSession(),
         readRatedWatchlistedMovieIds(),
@@ -32,5 +34,5 @@ export default async function DashboardFetch() {
       filterDashboardHelper(trending);
       filterDashboardHelper(topRated);
     
-      return <DashboardPage user={session?.user} trending={trending} topRated={topRated} perGenre={perGenreVisible}/>
+      return <DashboardPage user={session?.user} recommendations={recommendations!} trending={trending} topRated={topRated} perGenre={perGenreVisible}/>
 }

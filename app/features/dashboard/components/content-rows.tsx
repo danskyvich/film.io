@@ -7,16 +7,18 @@ import Link from "next/link";
 
 export default function ContentRow({
   title,
+  subtitle,
   movies,
 }: {
   title: string;
+  subtitle: string;
   movies: MovieItem[];
 }) {
 
   return (
     <section>
       <h2 className="text-2xl font-semibold">{title}</h2>
-      <h3 className="mb-3 text-sm text-white/75 font-sans font-light">Movies that users rated the most</h3>
+      <h3 className="mb-3 text-sm text-white/75 font-sans font-light">{subtitle}</h3>
       <Carousel opts={{ align: "start", dragFree: true }}>
         <CarouselContent>
           {movies.map((movie) => (
