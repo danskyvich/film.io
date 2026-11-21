@@ -90,14 +90,6 @@ export default function DashboardPage({user, trending, recommendations, topRated
         />
       </section>
 
-      <section className="flex flex-col w-full h-fit mx-3">
-        <ContentRow
-          title="Recommended for you"
-          subtitle="Movies closer to your preferences"
-          movies={recommendations!}
-        />
-      </section>
-
       <section className="flex flex-col w-full h-fit mx-3 gap-4">
         {FEATURED.filter(Boolean)
           .slice(0, 5)
