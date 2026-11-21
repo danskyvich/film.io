@@ -110,8 +110,8 @@ export default function SettingsPage({ user, genres, initialHideMovies }: Settin
             </Button>
           </CardContent>
         </Card>
-
-        {/* Preferences */}
+        
+        {/*
         <div className="flex flex-col w-full">
           <article className="py-2">
             <h2 className="text-xl ">Preferences</h2>
@@ -125,10 +125,11 @@ export default function SettingsPage({ user, genres, initialHideMovies }: Settin
             <PreferenceChips data={genres} label="Excluded" />
           </article>
         </div>
+        */}
       </section>
 
       {/* Profile */}
-      <section className="flex flex-col w-full h-fit pt-10">
+      <section className="flex flex-col w-full h-fit ">
         <h1 className="text-2xl font-semibold" id="profile">
           Your profile
         </h1>
