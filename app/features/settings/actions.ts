@@ -22,6 +22,9 @@ export async function deleteAccount() {
     try {
         await sql `DELETE FROM ratings WHERE user_id = ${userId} `
         await sql `DELETE FROM watchlist WHERE user_id = ${userId}`;
+        await sql `DELETE FROM onboarding_genres WHERE user_id = ${userId}` 
+        await sql `DELETE FROM onboarding_movies WHERE user_id = ${userId}` 
+        await sql `DELETE FROM user_preferences WHERE user_id = ${userId}` 
         await sql `DELETE FROM users WHERE user_id = ${userId}`;
     } catch (err) {
         console.error("deleteAccount failed: ", err);

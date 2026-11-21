@@ -40,7 +40,7 @@ export default function Header() {
           <p className="text-2xl font-semibold">Film.io</p>
         </div>
 
-        <Dialog>
+        <Dialog role="dialog" aria-label="menu">
           <SheetTrigger aria-label="open-menu">
             <Button className="h-full w-fit items-center justify-center block sm:hidden">
               <List size={18} className="min-w-5 cursor-pointer" />
