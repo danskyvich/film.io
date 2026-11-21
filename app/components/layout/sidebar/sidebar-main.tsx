@@ -27,7 +27,6 @@ import type { User } from "@auth0/nextjs-auth0/types";
 import SidebarDropdown from "./sidebar-dropdown";
 
 export default function AppSidebar({ user }: { user: User | undefined }) {
-  const [expanded, setExpanded] = useState<boolean>(true);
   const { state } = useSidebar();
 
   const SIDEBAR_CONTENT = [
@@ -57,21 +56,6 @@ export default function AppSidebar({ user }: { user: User | undefined }) {
     },
   ];
 
-  const SETTINGS = [
-    {
-      name: "General",
-      link: "/settings#general",
-    },
-    {
-      name: "Profile",
-      link: "/settings#profile",
-    },
-    {
-      name: "Security",
-      link: "/settings#security",
-    },
-  ];
-
   return (
     <div className="flex h-full">
       <Sidebar
@@ -96,50 +80,17 @@ export default function AppSidebar({ user }: { user: User | undefined }) {
                     <SidebarMenuButton className="flex cursor-pointer hover:bg-(--color-brand-black)/60">
                       <Link
                         href={item.link}
-                        onClick={() =>
-                          item.isExpanded && setExpanded((prev) => !prev)
-                        }
                         className="flex w-full items-center justify-between "
                       >
                         <div className="flex justify-center gap-3">
                           {item.icon}
                           <span>{item.name}</span>
                         </div>
-                        {item.isExpanded &&
-                          (!expanded ? (
-                            <ChevronRight
-                              size={15}
-                              className="min-w-3 h-auto text-white/50"
-                            />
-                          ) : (
-                            <ChevronDown
-                              size={15}
-                              className="min-w-3 h-auto text-white/50"
-                            />
-                          ))}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
-              {user && expanded && state === "expanded" && (
-                <SidebarMenu className="pl-5">
-                  {SETTINGS.map((item) => (
-                    <SidebarMenuItem
-                      key={item.name}
-                      className="border-l border-white/25"
-                    >
-                      <SidebarMenuButton className="flex w-full hover:bg-(--color-brand-black)/75 cursor-pointer">
-                        <Link href={item.link}>
-                          <span className="text-sm font-light text-white/75 font-sans">
-                            {item.name}
-                          </span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              )}
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
