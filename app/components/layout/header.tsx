@@ -8,23 +8,7 @@ export default function Header() {
           <Film size={18} className="min-w-3 h-auto"/>
             <p className="text-2xl font-semibold">Film.io</p>
         </div>
-        <div className="flex">
-          <Button
-            type="button"
-            className="border border-gray-700 rounded-xl hover:bg-(--color-brand-black)/75 cursor-pointer"
-          >
-            <SearchIcon size={20} className="min-w-3 h-auto" />
-            <p>Search</p>
-          </Button>
-
-          <Button type="button" className="cursor-pointer">
-            <Bell size={20} className="min-w-3 h-auto" />
-          </Button>
-
-          <Button type="button" className="cursor-pointer">
-            <Earth size={20} className="min-w-3 h-auto" />
-          </Button>
-        </div>
+        
       </header>
     );
 }
