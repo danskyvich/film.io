@@ -2,7 +2,7 @@
 
 import { auth0 } from '@/app/lib/auth/actions'
 import { sql } from '@/app/lib/db'
-import { MovieItem } from '@/types';
+import { MovieItem, PaginationCursor, RatingsWatchlistRow } from '@/types';
 import { revalidatePath } from 'next/cache';
 import { addPosterUrlToBatch } from '../dashboard/queries';
 
@@ -68,12 +68,12 @@ export const getTotalNumberOfWatchlistMovies = async () => {
     `;
     return count;
 }
-// FETCH all watchlist movies + count
-export const fetchAllWatchlistMovies = async (page: number): Promise<{success: false, response: [], error: string} | {success: true, response: MovieItem[], error: null}> => {
+// FETCH all watchlist movies + 
+// implement sql pagination query here
+export const fetchAllWatchlistMovies = async (cursor?: PaginationCursor | undefined): Promise<{success: false, response: [], error: string} | {success: true, response: RatingsWatchlistRow[], error: null}> => {
     const user_id = await retrieveUserId();
     if (!user_id) return { success: false, response: [], error: "Unauthenticated user"};
 
-    const safePage = Number.isInteger(page) && page > 0 ? page : 1;
     try {
         const response = (await sql `
             SELECT 
@@ -85,6 +85,7 @@ export const fetchAllWatchlistMovies = async (page: number): Promise<{success: f
                 movies.vote_count,
                 movies.popularity,
                 movies.overview,
+                watchlist.created_at::text AS created_at,
                 movies.language AS original_language,
                 COALESCE(
                     JSON_AGG(genres.title) FILTER (WHERE genres.id IS NOT NULL),
@@ -95,10 +96,11 @@ export const fetchAllWatchlistMovies = async (page: number): Promise<{success: f
             LEFT JOIN movie_genre_join ON movie_genre_join.movie_id = movies.id
             LEFT JOIN genres ON genres.id = movie_genre_join.genre_id
             WHERE watchlist.user_id = ${user_id}
-            GROUP BY movies.id, watchlist.created_at
-            ORDER BY watchlist.created_at DESC, movies.id
-            LIMIT 6 OFFSET ${(safePage - 1) * 6}
-        `) as MovieItem[];
+                ${cursor ? sql `AND ( watchlist.created_at, watchlist.movie_id) < (${cursor.created_at}::timestamptz, ${cursor.movie_id})` : sql``}
+            GROUP BY movies.id, watchlist.created_at, watchlist.movie_id
+            ORDER BY watchlist.created_at DESC, watchlist.movie_id DESC
+            LIMIT 7
+        `) as RatingsWatchlistRow[];
 
         return { success: true, response: addPosterUrlToBatch({ movies: response, size: "w500"}), error: null };
     } catch (err) {

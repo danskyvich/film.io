@@ -1,14 +1,14 @@
 import { generateStars } from "@/app/utils/generateStars";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { MovieMinimum } from "@/types";
+import { MovieItem } from "@/types";
 import { Check, Eye, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState } from "react";
 
 interface MovieCardProps {
-  movie: MovieMinimum;
+  movie: MovieItem;
   action: "watchlist" | "ratings";
 }
 
@@ -22,7 +22,7 @@ export default function MovieCard({ movie, action }: MovieCardProps) {
           className="relative flex flex-1 aspect-2/3 w-full h-full"
         >
           <Image
-            src={movie.image}
+            src={movie.poster_path ?? ""}
             alt="alt"
             fill
             className="object-cover rounded-lg"
@@ -44,9 +44,9 @@ export default function MovieCard({ movie, action }: MovieCardProps) {
               </p>
 
               <div className="flex w-full px-2 text-sm  text-white/75 tracking-tighter">
-                <p>{movie.genre}</p>
+                <p>{movie.genres}</p>
                 <p className="px-2">•</p>
-                <p>{movie.year}</p>
+                <p>{movie.release_date}</p>
               </div>
 
               <div className="pointer-events-auto flex w-full p-2 justify-between">

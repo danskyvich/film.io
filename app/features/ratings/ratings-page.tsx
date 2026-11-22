@@ -1,64 +1,113 @@
 "use client"
 
 import BrowseMoviesButton from "@/app/components/layout/browse-button";
-import { MovieItem } from "@/types";
+import { MovieItem, PaginationCursor, RatingsWatchlistRow } from "@/types";
 import { CircleQuestionMark } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { fetchAllTotalRatedMovies } from "./actions";
 
 interface RatingsPageProps {
   count: number;
-  movies: MovieItem[];
+  movies: RatingsWatchlistRow[];
+  cursor: PaginationCursor | null;
 }
 
-export default function RatingsPage({count, movies}: RatingsPageProps) {
+export default function RatingsPage({count, movies, cursor}: RatingsPageProps) {
 
   useEffect(() => {
     document.title = "Ratings | Film.io"
-  });
+  }, []);
+
+  const [error, setError] = useState<string | null>(null);
+  const [newMovies, setMovies] = useState<MovieItem[]>(movies);
+  const [newCursor, setNewCursor] = useState<PaginationCursor | null>(cursor);
+  const [isPending, startTransition] = useTransition();
+
+  const handleLoadMore = () => {
+    if (!newCursor || isPending) return;
+    setError(null);
+
+    startTransition(async() => {
+      const response = await fetchAllTotalRatedMovies(newCursor);
+      if (!response.success) {
+        setError("fetchAllTotalRatedMovies failed: " + response.error);
+        return;
+      }
+
+      const rows = response.response;
+      const hasMore = rows.length > 6;
+      const slice = rows.slice(0,6);
+      const last = slice[slice.length - 1];
+
+      setMovies((prev) => {
+        const seen = new Set(prev.map((movie) => movie.id));
+        return [...prev, ...slice.filter((movie) => !seen.has(movie.id))];
+      })
+      
+      setNewCursor(hasMore && last ? { created_at: last.created_at, movie_id: last.id} : null);
+    })
+  }
 
   return (
-    <main className="flex flex-col w-full h-full px-[10dvw]">
-      <header className="flex mt-[10dvh] w-full h-fit justify-between items-center">
-        <div className="flex flex-col">
-          <p className="text-3xl font-sans font-semibold">Ratings</p>
+    <main className="flex flex-col w-full h-full px-[10dvw] overflow-y-auto">
+      {/* header */}
+      <header className="mt-[10dvh] flex w-full flex-col gap-2">
+        <div className="flex w-full items-end justify-between">
+          <div className="flex flex-col">
+            <h1 className="font-sans text-3xl font-semibold">Ratings</h1>
+            <p className="text-sm text-white/75">
+              Movies you rated.
+            </p>
+          </div>
+
           <p className="text-sm text-white/75">
-            Browse movies and add them to your watchlist.
+            {count} {count === 1 ? "movie" : "movies"}
           </p>
         </div>
-        <p className="text-sm text-white/75">{count} movies</p>
+        <hr className="border-white/35" />
       </header>
-      <hr className="border-white/35 mt-1" />
 
-      <section className="relative grid grid-cols-3 grid-rows-2 gap-x-5 gap-y-5 w-full h-full mt-4">
-        {movies.length === 0 ? (
-          <div className="absolute flex flex-col gap-3 inset-0 w-full h-full items-center justify-center">
-            <CircleQuestionMark size={30} className="h-auto text-white/50"/>
-            <p className="text-sm font-sans text-white/50">You do not have any rated movies.</p>
-            <BrowseMoviesButton/>
+      {/* Movies */}
+      <section className="flex w-full flex-1 flex-col py-6">
+        {newMovies.length === 0 ? (
+          <div className="flex flex-col gap-3 w-full h-full items-center justify-center">
+            <CircleQuestionMark size={30} className="h-auto text-white/50" />
+            <p className="text-sm font-sans text-white/50">
+              You do not have any rated movies.
+            </p>
+            <BrowseMoviesButton />
           </div>
         ) : (
-          <>
-            {movies.map((movie) => (
-              <article key={movie.id} className="flex flex-col w-full h-full">
-                <Link
-                  href={`/dashboard/${movie.id}`}
-                  className="relative block aspect-2/3"
-                >
-                  <Image
-                    src={movie.poster_path!}
-                    alt={`${movie.poster_path} movie`}
-                    fill
-                    className="rounded-lg shadow-md"
-                  />
-                  <div className="flex w-full h-full bg-linear-180 from-transparent to-black/70 z-50 absolute inset-0 ">
-                    <p className="text-sm self-end p-2">{movie.title}</p>
-                  </div>
-                </Link>
-              </article>
+          <article className="grid grid-cols-3 gap-x-3 gap-y-3 w-full h-full">
+            {newMovies.map((movie) => (
+              <Link
+                href={`/dashboard/${movie.id}`}
+                className="relative block aspect-2/3 w-full h-full"
+                key={movie.id}
+              >
+                <Image
+                  src={movie.poster_path! ?? ""}
+                  alt={movie.title}
+                  fill
+                  className="rounded-lg shadow-md"
+                />
+                <div className="flex w-full h-full bg-linear-180 from-transparent to-black/70 z-50 absolute inset-0 ">
+                  <p className="text-sm self-end p-2">{movie.title}</p>
+                </div>
+              </Link>
             ))}
-          </>
+          </article>
+        )}
+        {newCursor && (
+          <button
+            onClick={handleLoadMore}
+            disabled={isPending}
+            className="mt-8 w-full cursor-pointer rounded-md border hover:bg-white/15 border-white/35 px-4 py-2 text-sm disabled:opacity-50 transition-all"
+          >
+            {isPending ? "Loading..." : "Load more"}
+          </button>
         )}
       </section>
     </main>

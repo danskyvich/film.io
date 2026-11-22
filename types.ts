@@ -93,3 +93,10 @@ export const FEATURED = [
     film_id: number,
     score: number
    }
+
+   export type RatingsWatchlistRow = MovieItem & {created_at: string}
+
+   export type PaginationCursor = {
+    created_at: string,
+    movie_id: number,
+   }
