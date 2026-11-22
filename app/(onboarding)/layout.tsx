@@ -6,7 +6,6 @@ import { useEffect } from "react";
 export default function OnboardingLayout({
   children,
 }: {
-  step: number;
   children: React.ReactNode;
 }) {
 

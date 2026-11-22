@@ -8,5 +8,5 @@ export default async function GenrePageFetch() {
     await connection();
     const response = await getGenresFromDatabase();
 
-    return <OnboardingPageOne genres={response} />;
+    return <OnboardingPageOne genres={response ?? []} />;
 }

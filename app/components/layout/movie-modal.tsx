@@ -1,7 +1,6 @@
 "use client";
 
 import { addRating, deleteRating } from "@/app/features/ratings/actions";
-import { isValidRating } from "@/app/utils/validateRatingInput";
 import RatingsButton from "@/app/features/ratings/components/ratings-button";
 // movie-card.tsx
 import {
@@ -10,11 +9,10 @@ import {
 } from "@/app/features/watchlist/actions";
 import WatchlistButton from "@/app/features/watchlist/components/watchlist-button";
 import { MovieItem, Rating } from "@/types";
-import { ArrowUp, ArrowUpRight, X } from "lucide-react";
+import { ArrowUpRight, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useOptimistic, useState, useTransition } from "react";
-import Link from "next/link";
+import { useEffect, useOptimistic, useTransition } from "react";
 
 export default function MovieModal({
   action,

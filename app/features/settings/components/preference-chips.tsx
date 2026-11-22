@@ -10,7 +10,7 @@ export function PreferenceChips({data, label}: {data: Genre[], label: string}) {
         {
             data.map((item) => (
                 <ToggleGroupItem size={"lg"} aria-label="liked-preferences" id={item.id} key={item.id} className="border border-white/30 cursor-pointer hover:text-(--color-brand-teal) hover:border-(--color-brand-teal) active:bg-(--color-brand-teal) active:text-white">
-                    <p>{item.name}</p>
+                    <p>{item.title}</p>
                 </ToggleGroupItem>
             ))
         }

@@ -50,13 +50,14 @@ export default function OnboardingPageTwo({ films }: { films: OnboardingMovie[] 
 
         try {
           const response = await saveFilms(selectedFilms);
-          if (!response.success) {
-            setError(response.error);
+          if (!response?.success) {
+            setError(response?.error ?? "Could not save your picked films");
             return;
           }
           router.push("/dashboard");
         } catch (err) {
           console.error(err);
+          setError("Something went wrong. Please try again")
           return;
         }
       })
