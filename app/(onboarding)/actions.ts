@@ -135,7 +135,7 @@ export const saveFilms = async (films: Set<string | number>) => {
         } catch (err) {
             console.error("recommender PUT failed", err)
         }
-    
+        revalidatePath("/", "layout")
         console.log("Films saved.")
         return { success: true, error: null };
     } catch (err) {

@@ -31,8 +31,8 @@ export default async function DashboardFetch() {
       
       // filtered movie functions
       const perGenreVisible = Object.fromEntries(Object.entries(perGenre).map(([k, list]) => [k, filterDashboardHelper(list)]));
-      filterDashboardHelper(trending);
-      filterDashboardHelper(topRated);
+      const trendingVisible = filterDashboardHelper(trending);
+      const topratedVisible = filterDashboardHelper(topRated);
     
-      return <DashboardPage user={session?.user} recommendations={recommendations!} trending={trending} topRated={topRated} perGenre={perGenreVisible}/>
+      return <DashboardPage user={session?.user} recommendations={recommendations!} trending={trendingVisible} topRated={topratedVisible} perGenre={perGenreVisible}/>
 }

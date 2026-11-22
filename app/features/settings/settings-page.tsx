@@ -44,7 +44,7 @@ export default function SettingsPage({ user, genres, initialHideMovies }: Settin
     {
       name: "Redo onboarding",
       description:
-        "Allows you to rerun the onboarding process on the next successful sign in.",
+        "Allows you to rerun the onboarding process the moment you navigate to your dashboard.",
       value: "Redo onboarding",
       icon: <Redo size={18} className="min-w-3 h-auto" />,
       content:

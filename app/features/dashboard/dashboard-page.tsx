@@ -73,13 +73,15 @@ export default function DashboardPage({user, trending, recommendations, topRated
       </section>
 
       {/* Toprated */}
-      <section className="flex flex-col w-full h-fit mx-3">
-        <ContentRow
-          title="Recommended for you"
-          subtitle="Movies catered to your taste"
-          movies={recommendations!}
-        />
-      </section>
+      {user && (
+        <section className="flex flex-col w-full h-fit mx-3">
+          <ContentRow
+            title="Recommended for you"
+            subtitle="Movies catered to your taste"
+            movies={recommendations!}
+          />
+        </section>
+      )}
 
       {/* Toprated */}
       <section className="flex flex-col w-full h-fit mx-3">
