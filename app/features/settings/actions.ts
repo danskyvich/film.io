@@ -1,7 +1,7 @@
 "use server"
 
 import { getUser } from "@/app/lib/auth/get-user";
-import { sql } from "@/app/lib/db";
+import { recommender_sql, sql } from "@/app/lib/db";
 import { ManagementClient } from "auth0";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -27,6 +27,10 @@ export async function deleteAccount() {
             sql `DELETE FROM user_preferences WHERE user_id = ${userId}`,
             sql `DELETE FROM users WHERE user_id = ${userId}`,
         ]);
+
+        await recommender_sql `
+            DELETE FROM user_preferences WHERE user_id = ${userId}
+        `
 
         await management.users.delete(userId);
     } catch (err) {

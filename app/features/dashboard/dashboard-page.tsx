@@ -14,6 +14,7 @@ import Thumbnail from "./components/thumbnail";
 import ThumbnailSkeleton from "./components/skeleton/thumbnail-skeleton";
 import { FEATURED } from "@/types";
 import Link from "next/link";
+
 interface DashboardProps {
   user: User | undefined,
   trending: MovieItem[],
@@ -33,6 +34,8 @@ export default function DashboardPage({user, trending, recommendations, topRated
 
   // Defaults to the first trending movie until the user clicks one
   const selectedItem = pickedItem ?? trending[0] ?? null;
+
+  const isRecommendationEmpty: boolean = (recommendations ?? []).length > 0
 
   return (
     <main className="flex flex-col z-0 w-full h-full gap-5 overflow-y-auto overflow-x-hidden">
@@ -72,8 +75,8 @@ export default function DashboardPage({user, trending, recommendations, topRated
         </Carousel>
       </section>
 
-      {/* Toprated */}
-      {user && (
+      {/* Recommendations */}
+      {user && isRecommendationEmpty && (
         <section className="flex flex-col w-full h-fit mx-3">
           <ContentRow
             title="Recommended for you"

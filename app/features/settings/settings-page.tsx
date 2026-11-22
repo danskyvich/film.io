@@ -7,12 +7,11 @@ import { User } from "@auth0/nextjs-auth0/types";
 import { LogOut, Redo, Trash, X } from "lucide-react";
 import Link from "next/link";
 import { clearRatingsAndWatchlist, deleteAccount, hideAndShowMovies, redoOnboarding } from "./actions";
-import { PreferenceChips } from "./components/preference-chips";
 import { Genre } from "@/types";
 import { useEffect, useState, useTransition } from "react";
 import { DialogTrigger } from "@/components/ui/dialog";
 import DialogComponent from "@/app/components/layout/dialog";
-import { Switch } from "@/components/ui/switch";
+import { CustomSwitch } from "./components/custom-switch";
 
 interface SettingsPageProps {
   user: User | null,
@@ -20,7 +19,7 @@ interface SettingsPageProps {
   initialHideMovies: boolean,
 }
 
-export default function SettingsPage({ user, genres, initialHideMovies }: SettingsPageProps) {
+export default function SettingsPage({ user, initialHideMovies }: SettingsPageProps) {
   useEffect(() => {
     document.title = "Settings | Film.io";
   }, []);
@@ -79,6 +78,7 @@ export default function SettingsPage({ user, genres, initialHideMovies }: Settin
 
     startTransition(async () => {
       const result = await hideAndShowMovies(value);
+      console.log(result);
       if (!result.success) setSwitchToggle(!value); // unchanged
     });
   };
@@ -110,7 +110,7 @@ export default function SettingsPage({ user, genres, initialHideMovies }: Settin
             </Button>
           </CardContent>
         </Card>
-        
+
         {/*
         <div className="flex flex-col w-full">
           <article className="py-2">
@@ -146,14 +146,14 @@ export default function SettingsPage({ user, genres, initialHideMovies }: Settin
                 Hide your watchlist movies and rated movies from the dashboard.
               </p>
             </div>
-            <Switch
-              size="default"
+            <CustomSwitch
               id="switch-checked-hide"
-              className="cursor-pointer"
+              className="cursor-pointer focus-visible:border-white/50"
+              aria-label="Hide rated and watchlist movies"
               isSelected={switchToggle}
               onChange={handleHideMovies}
               isDisabled={isPending}
-            ></Switch>
+            />
           </div>
 
           {/* Clear watchlist and rated + redo onboarding buttons */}
