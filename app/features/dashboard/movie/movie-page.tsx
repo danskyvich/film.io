@@ -17,13 +17,16 @@ interface MoviePageProps {
   inWatchlist: boolean;
   inRatings: boolean;
   user: string | undefined;
+  rating: number;
 }
 
-export default function MoviePage({movie, inWatchlist, user, inRatings}: MoviePageProps) {
+export default function MoviePage({movie, rating, inWatchlist, user, inRatings}: MoviePageProps) {
 
     useEffect(() => {
         document.title = `${movie.title} | Film.io`
     })
+
+    console.log(rating)
 
     const [optimistic, setOptimistic] = useOptimistic(
         inWatchlist,
@@ -94,6 +97,7 @@ export default function MoviePage({movie, inWatchlist, user, inRatings}: MoviePa
             src={movie.poster_path!}
             alt={`${movie.title}-poster-image`}
             fill
+            sizes={"(max-width: 100vw)"}
             className="rounded-xl shadow-xl object-cover"
           />
           <div className="inset-0 absolute bg-linear-180 from-transparent to-black/75 z-50" />
@@ -198,10 +202,12 @@ export default function MoviePage({movie, inWatchlist, user, inRatings}: MoviePa
                 onClick={handleWatchlistToggle}
               />
               <RatingsButton
+                rating={rating}
                 state={optimisticRatings}
                 onConfirm={handleAddRating}
                 onRemove={handleRemoveRating}
                 disabled={isPending}
+                isRated={inRatings}
                 open
               />
             </div>

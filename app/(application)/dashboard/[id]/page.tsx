@@ -4,7 +4,6 @@ import { getMovieWithRatingsState } from "@/app/lib/helpers/getMovieWithRatingsS
 import { getMovieWithWatchlistState } from "@/app/lib/helpers/getMovieWithWatchlistState";
 import { notFound } from "next/navigation";
 
-
 export default async function MovieMain({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params; // retrieve params from URL
 
@@ -12,16 +11,17 @@ export default async function MovieMain({ params }: { params: Promise<{ id: stri
   const cleanedId = match ? Number(match[0]) : NaN;
 
   //validate
-  const movie_id = Number(id);
-  if (!Number.isInteger(movie_id) || movie_id <= 0) notFound();
+  if (!Number.isInteger(cleanedId) || cleanedId <= 0) notFound();
 
   // watchlistHelper validates the id (calls notFound() on NaN), fetches the movie and user
-  const { movie, user_id, inWatchlist } =
-    await getMovieWithWatchlistState(cleanedId, getMovie);
-  const { inRatings } = await getMovieWithRatingsState(cleanedId, user_id);
+  const { movie, user_id, inWatchlist } = await getMovieWithWatchlistState(cleanedId, getMovie);
+  const { inRatings, data } = await getMovieWithRatingsState(cleanedId, user_id);
+  const rating = data?.rating as number;
+  console.log(rating)
 
   return (
     <MoviePage
+      rating={rating}
       movie={movie}
       inWatchlist={inWatchlist}
       user={user_id}
