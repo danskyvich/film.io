@@ -7,5 +7,5 @@ export default function Ratings({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
-  return <Suspense fallback={null}><RatingsFetch searchParams={searchParams}/></Suspense>;
+  return <Suspense fallback={null}><RatingsFetch/></Suspense>;
 };

@@ -8,7 +8,7 @@ export default function Page({
 }) {
   return (
     <Suspense fallback={null}>
-      <WatchlistFetch searchParams={searchParams} />
+      <WatchlistFetch/>
     </Suspense>
   );
 }
