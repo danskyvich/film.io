@@ -19,11 +19,15 @@ export default function MovieModal({
   inWatchlist = false,
   inRatings = false,
   movie,
+  rating,
+  isRated,
 }: {
   inWatchlist?: boolean;
   inRatings?: boolean;
   action: "logged-out" | "logged-in";
   movie: MovieItem;
+  rating: number;
+  isRated: boolean;
 }) {
 
   // states
@@ -193,6 +197,8 @@ export default function MovieModal({
 
                 {/* Rating button */}
                 <RatingsButton
+                  isRated={isRated}
+                  rating={rating}
                   state={optimisticRatings}
                   disabled={isPending}
                   onConfirm={handleAddRating}

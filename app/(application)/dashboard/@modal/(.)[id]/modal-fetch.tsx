@@ -12,13 +12,16 @@ export default async function ModalFetch({params}: {params: Promise<{id: string}
         // watchlistHelper validates the id (calls notFound() on NaN), fetches the movie and user
         const { movie, user_id, inWatchlist } =
           await getMovieWithWatchlistState(cleanedId, getMovie);
-        const { inRatings } = await getMovieWithRatingsState(
+        const { inRatings, data } = await getMovieWithRatingsState(
           cleanedId,
           user_id,
         );
+        const rating = data?.rating as number;
 
         return (
           <MovieModal
+            isRated={inRatings}
+            rating={rating}
             movie={movie}
             inWatchlist={inWatchlist}
             inRatings={inRatings}
