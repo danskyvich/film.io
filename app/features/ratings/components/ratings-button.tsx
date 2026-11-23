@@ -3,11 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { Check, Loader2, Star, ThumbsUp, Trash } from "lucide-react";
 import { Dialog, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from "@/components/ui/dialog";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface RatingsButtonProps {
     state: boolean,
-    open: boolean,
     onConfirm: (rating: number) => Promise<{ success: boolean }>;
     onRemove: () => Promise<{success: boolean}>;
     className?: string;
@@ -26,8 +25,14 @@ export default function RatingsButton({
   rating,
 }: RatingsButtonProps) {
   const [ratingCount, setRatingCount] = useState<number>(rating ?? 0);
-  const [hoverCount, setHoverCount] = useState<number>(rating ?? 0);
-  const [open, setOpen] = useState<boolean>(false);
+  const [prevRating, setPrevRating] = useState<number>(rating ?? 0);
+  const [hoverCount, setHoverCount] = useState<number>(0);
+  const [open, setOpen] = useState<boolean | undefined>(undefined);
+
+  if ((rating ?? 0) !== prevRating) {
+    setPrevRating(rating ?? 0);
+    setRatingCount(rating ?? 0);
+  }
 
   const MAX_STARS = 10;
   const displayValue = hoverCount || ratingCount;

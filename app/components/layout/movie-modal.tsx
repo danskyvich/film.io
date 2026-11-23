@@ -203,7 +203,6 @@ export default function MovieModal({
                   disabled={isPending}
                   onConfirm={handleAddRating}
                   onRemove={handleRemoveRating}
-                  open
                 />
                 <a
                   href={`/dashboard/${movie.id}`}
