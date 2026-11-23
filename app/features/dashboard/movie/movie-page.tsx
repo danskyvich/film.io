@@ -208,7 +208,6 @@ export default function MoviePage({movie, rating, inWatchlist, user, inRatings}:
                 onRemove={handleRemoveRating}
                 disabled={isPending}
                 isRated={inRatings}
-                open
               />
             </div>
           ) : (
