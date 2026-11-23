@@ -20,14 +20,12 @@ export default function MovieModal({
   inRatings = false,
   movie,
   rating,
-  isRated,
 }: {
   inWatchlist?: boolean;
   inRatings?: boolean;
   action: "logged-out" | "logged-in";
   movie: MovieItem;
   rating: number;
-  isRated: boolean;
 }) {
 
   // states
@@ -99,7 +97,7 @@ export default function MovieModal({
         return { success: false };
       }
 
-      startTransition(() => setOptimisticRatings(true));
+      startTransition(() => setOptimisticRatings(false));
       return { success: true };
     } catch (err) {
       console.error(err);
@@ -197,7 +195,7 @@ export default function MovieModal({
 
                 {/* Rating button */}
                 <RatingsButton
-                  isRated={isRated}
+                  isRated={inRatings}
                   rating={rating}
                   state={optimisticRatings}
                   disabled={isPending}

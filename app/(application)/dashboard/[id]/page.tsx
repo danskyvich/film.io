@@ -17,7 +17,6 @@ export default async function MovieMain({ params }: { params: Promise<{ id: stri
   const { movie, user_id, inWatchlist } = await getMovieWithWatchlistState(cleanedId, getMovie);
   const { inRatings, data } = await getMovieWithRatingsState(cleanedId, user_id);
   const rating = data?.rating as number;
-  console.log(rating)
 
   return (
     <MoviePage

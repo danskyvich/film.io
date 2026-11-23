@@ -20,7 +20,6 @@ export default async function ModalFetch({params}: {params: Promise<{id: string}
 
         return (
           <MovieModal
-            isRated={inRatings}
             rating={rating}
             movie={movie}
             inWatchlist={inWatchlist}
