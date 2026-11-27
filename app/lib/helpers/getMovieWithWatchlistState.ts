@@ -1,11 +1,8 @@
-import { getMovie } from "@/app/features/dashboard/queries";
 import { notFound } from "next/navigation";
 import { getUser } from "../auth/get-user";
 import { sql } from "../db";
-import { MovieItem } from "@/types";
 
 export const getMovieWithWatchlistState = async<T> (movie_id: number, fetcher: (id: number) => Promise<T | null | undefined>): Promise<{ inWatchlist: boolean, user_id: string | undefined, movie: T }> => {
-
     // check if the id is a number
     const isAnInteger = Number.isInteger(movie_id);
     if (!isAnInteger || movie_id < 1) notFound();

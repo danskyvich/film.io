@@ -8,7 +8,7 @@ import {
   deleteMovieFromWatchlist,
 } from "@/app/features/watchlist/actions";
 import WatchlistButton from "@/app/features/watchlist/components/watchlist-button";
-import { MovieItem, Rating } from "@/types";
+import { MovieItem, MoviePerson, Rating } from "@/types";
 import { ArrowUpRight, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -49,7 +49,6 @@ export default function MovieModal({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [router]);
 
-  //TODO: migrate these two functions to watchlist helper function
   // handle watchlist
   const handleWatchlistToggle = () => {
     startTransition(async () => {

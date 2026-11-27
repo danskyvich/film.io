@@ -1,10 +1,9 @@
 import { getUser } from "@/app/lib/auth/get-user";
 import { sql } from "@/app/lib/db"
-import { AggregatedGenres, MovieFull, MovieItem, RecommendedFilm, TMDBImageSizes } from "@/types";
-import { cacheLife, cacheTag } from "next/cache";
+import { AggregatedGenres, MovieFull, MovieItem, MoviePerson, Person, RecommendedFilm, TMDBImageSizes } from "@/types";
+import { cacheLife, cacheTag, revalidatePath } from "next/cache";
 import { cache } from "react";
 import "server-only";
-import { isDataView } from "util/types";
 
 const RECOMMENDER_API_KEY = process.env.RECOMMENDER_API_KEY;
 const RECOMMENDER_URL = process.env.RECOMMENDER_URL
@@ -22,8 +21,18 @@ export const addPosterUrlForASingleMovie = <T extends {poster_path: string | nul
     }
 }
 
-export const addPosterUrlToBatch = <T extends {poster_path: string | null, release_date: string | null}>({movies, size = "w500"}: {movies: T[], size: TMDBImageSizes}): T[] => 
+export const addProfileUrlForASinglePerson = <T extends { profile_path: string | null}>({person, size = "w500"}: {person: T, size?: TMDBImageSizes}): T => {
+    return {
+        ...person,
+        profile_path: tmdbImageUrl({ path: person.profile_path, size }),
+    }
+}
+
+export const addPosterUrlToBatch = <T extends {poster_path: string | null, release_date: string | null}>({movies, size = "w500"}: {movies: T[], size?: TMDBImageSizes}): T[] => 
     movies.map((movie) => addPosterUrlForASingleMovie({movie, size}))
+
+export const addProfileUrlToBatch = <T extends { profile_path: string | null}>({ people, size = "w500"}: { people: T[], size?: TMDBImageSizes}): T[] => 
+    people.map((person) => addProfileUrlForASinglePerson({ person, size }))
 
 // FETCH movies (trending, toprated, genres)
 export const fetchTopRatedMovies = async (): Promise<MovieItem[]> => {
@@ -301,4 +310,26 @@ export const fetchRecommendations = async () => {
         return [];
     }
 };
+
+export const retrieveMovieCast = async (movie_id: number): Promise<{ success: false, error: string} | {success: true, data: MoviePerson[] }> => {
+    try {
+        const response = await sql `
+        SELECT 
+            people.name,
+            people.profile_path,
+            people.id
+        FROM "cast" c
+        JOIN people ON people.id = c.person_id
+        WHERE c.movie_id = ${movie_id}
+        ORDER BY c."order"
+        LIMIT 5
+        `;
+        if (!response) return { success: false, error: `Cast retrieval for movie ${movie_id} failed`};
+        console.log(response);
+        return { success: true, data: addProfileUrlToBatch({ people: response as Person[], size: "w500"}) }
+    } catch (err) {
+        console.error(`retrieveMovieCast failed for movie: ${movie_id}` + err);
+        return { success: false, error: `"retrieveMovieCast failed` + err }
+    }
+}
 

@@ -1,5 +1,5 @@
 import MovieModal from "@/app/components/layout/movie-modal";
-import { getMovie } from "@/app/features/dashboard/queries";
+import { getMovie, retrieveMovieCast } from "@/app/features/dashboard/queries";
 import { getMovieWithRatingsState } from "@/app/lib/helpers/getMovieWithRatingsState";
 import { getMovieWithWatchlistState } from "@/app/lib/helpers/getMovieWithWatchlistState";
 
@@ -12,12 +12,14 @@ export default async function ModalFetch({params}: {params: Promise<{id: string}
         // watchlistHelper validates the id (calls notFound() on NaN), fetches the movie and user
         const { movie, user_id, inWatchlist } =
           await getMovieWithWatchlistState(cleanedId, getMovie);
+
+        // fetch movie ratings
         const { inRatings, data } = await getMovieWithRatingsState(
           cleanedId,
           user_id,
         );
         const rating = data?.rating as number;
-
+        
         return (
           <MovieModal
             rating={rating}

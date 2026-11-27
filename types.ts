@@ -100,3 +100,33 @@ export const FEATURED = [
     created_at: string,
     movie_id: number,
    }
+
+   // Credits
+   export type Person = {
+    id: number,
+    name: string,
+    profile_path: string | null,
+    gender: number,
+   }
+
+   export type Cast = Person & {
+        credit_id: string,
+        cast_id: string,
+        character: string,
+        order: number
+   }
+
+   export type Crew = Person & {
+        credit_id: string,
+        job: string,
+        department: string,
+   }
+
+   export type MovieCredits = {
+    id: number,
+    cast: Cast[],
+    crew: Crew[],
+   }
+
+   // CAST and CREW
+   export type MoviePerson = Omit<Person, "gender"> 

@@ -1,4 +1,4 @@
-import { MovieFull, TMDBSeedScript } from "@/types";
+import { MovieCredits, TMDBSeedScript } from "@/types";
 import { neon } from "@neondatabase/serverless"
 
 const tmdb_access_token = process.env.TMDB_ACCESS_TOKEN;
@@ -8,14 +8,14 @@ const sql = neon(process.env.DATABASE_URL!);
 //! Run "npx tsx --env-file=[env_path here] [fetch_file_path]" (use absolute path)
 
 //! DO NOT EDIT THIS
-async function fetchApi(url: string) {
-    if (!tmdb_access_token) {
-        throw new Error("The tmdb token is null or undefined");
+async function fetchApi(url: string, token: string | undefined) {
+    if (!token) {
+        throw new Error("The token used is either null or undefined");
     }
     const response = await fetch("https://api.themoviedb.org/3/" + url, {
         method: 'GET',
         headers: {
-            "Authorization": `Bearer ${tmdb_access_token}`,
+            "Authorization": `Bearer ${token}`,
             "Accept": 'application/json' 
         }
     });
@@ -26,24 +26,24 @@ async function fetchApi(url: string) {
 
 // fetch movie data from diff endpoints
 async function fetchTMDBData() {
-    const genreData = await fetchApi("genre/movie/list");
+    const genreData = await fetchApi("genre/movie/list", tmdb_access_token);
     await insertGenres(genreData.genres);
 
     const ids = new Set<number>();
 
     // fetch trending page
     for (let page = 1; page <= 5; page++) {
-        const popular = await fetchApi(`movie/popular?page=${page}`);
+        const popular = await fetchApi(`movie/popular?page=${page}`, tmdb_access_token);
         popular.results.forEach((m : {id: number}) => {ids.add(m.id)});
     }
 
     // fetch toprated
-    const topRated = await fetchApi("movie/top_rated");
+    const topRated = await fetchApi("movie/top_rated", tmdb_access_token);
     topRated.results.forEach((m: {id: number}) => ids.add(m.id));
 
     for (const id of ids) {
         try {
-            const details = await fetchApi(`movie/${id}`);
+            const details = await fetchApi(`movie/${id}`, tmdb_access_token);
             await upsertMovie(details);
         } catch (err) {
             console.error(`Failed on movies ${id}`, err);
@@ -121,7 +121,72 @@ async function upsertMovie(movie: TMDBSeedScript) {
             ON CONFLICT DO NOTHING
         `
     }
-} 
+
+    const movieCredits = await fetchMovieCredits(movie.id);
+    if (!movieCredits.success) {
+        console.error(`movieCredits error: ${movieCredits.error}`);
+        return;
+    };
+
+    // INSERT casts
+    const casts = movieCredits.data.cast;
+
+    for (const cast of casts) {
+        await sql.transaction([ 
+            sql `
+                INSERT INTO people (id, name, profile_path, gender)
+                VALUES (${cast.id}, ${cast.name}, ${cast.profile_path}, ${cast.gender})
+                ON CONFLICT (id) DO UPDATE SET
+                    name = EXCLUDED.name,
+                    profile_path = EXCLUDED.profile_path,
+                    gender = EXCLUDED.gender
+            `,
+            sql `
+                INSERT INTO "cast" (credit_id, cast_id, movie_id, person_id, "character", "order")
+                VALUES (
+                    ${cast.credit_id}, ${cast.cast_id}, ${movie.id}, ${cast.id}, ${cast.character}, ${cast.order} 
+                ) ON CONFLICT (credit_id) DO UPDATE SET
+                    movie_id = EXCLUDED.movie_id,
+                    person_id = EXCLUDED.person_id,
+                    "character" = EXCLUDED."character",
+                    "order" = EXCLUDED."order"
+            `,
+        ]);
+    };
+
+    // INSERT crews
+    const crews = movieCredits.data.crew;
+
+    for (const crew of crews) {
+        await sql.transaction([ 
+            sql `
+                INSERT INTO people (id, name, profile_path, gender)
+                VALUES (${crew.id}, ${crew.name}, ${crew.profile_path}, ${crew.gender})
+                ON CONFLICT (id) DO UPDATE SET
+                    name = EXCLUDED.name,
+                    profile_path = EXCLUDED.profile_path,
+                    gender = EXCLUDED.gender
+            `,
+            sql `
+                INSERT INTO crew (credit_id, person_id, movie_id, job, department)
+                VALUES (${crew.credit_id}, ${crew.id}, ${movie.id}, ${crew.job}, ${crew.department})
+                ON CONFLICT (credit_id) DO UPDATE SET
+                    movie_id = EXCLUDED.movie_id,
+                    person_id = EXCLUDED.person_id,
+                    job = EXCLUDED.job,
+                    department = EXCLUDED.department
+            `,
+        ]);
+    };
+
+}
+
+async function fetchMovieCredits(movie_id: number): Promise<{success: false, error: string} | {success: true, data: MovieCredits }> {
+    const response = await fetch(`https://api.themoviedb.org/3/movie/${movie_id}/credits?language=en-US&api_key=${process.env.TMDB_API_KEY}`);
+
+    if (!response.ok) return { success: false, error: `fetchMovieCredits failed for movie ${movie_id}: ${response.status}`}
+    return { success: true, data: await (response.json())}
+}
 
 async function insertGenres(data: Array<{ id: number, name: string}>) {
     for (const genre of data) {

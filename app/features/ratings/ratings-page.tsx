@@ -51,15 +51,13 @@ export default function RatingsPage({count, movies, cursor}: RatingsPageProps) {
   }
 
   return (
-    <main className="flex flex-col w-full h-full px-[10dvw] overflow-y-auto">
+    <main className="flex flex-col w-full h-full px-[5dvw] sm:px-[10dvw] xl:px-[20dvw] overflow-y-auto">
       {/* header */}
       <header className="mt-[10dvh] flex w-full flex-col gap-2">
         <div className="flex w-full items-end justify-between">
           <div className="flex flex-col">
             <h1 className="font-sans text-3xl font-semibold">Ratings</h1>
-            <p className="text-sm text-white/75">
-              Movies you rated.
-            </p>
+            <p className="text-sm text-white/75">Movies you rated.</p>
           </div>
 
           <p className="text-sm text-white/75">
